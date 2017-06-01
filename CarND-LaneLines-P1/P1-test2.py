@@ -96,49 +96,60 @@ def weighted_img(img, initial_img, α=0.8, β=1., λ=0.):
 # TODO: Build your pipeline that will draw lane lines on the test_images
 # then save them to the test_images directory.
 
+# TODO: Build your pipeline that will draw lane lines on the test_images
+# then save them to the test_images directory.
+
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import numpy as np
 import cv2
+import os
 
-# import image
-image = mpimg.imread('test_images/solidWhiteCurve.jpg')
-# gray scale test_images\solidWhiteCurve.jpg
-gray = grayscale(image) # *image* to *gray*
+import os
+a = os.listdir("test_images/")
+print(a)
+for names in a:
+    type('cba\\' + names)
 
-plt.imshow(gray,cmap='gray')
+image_names = os.listdir("test_images/")
 
-# %%
-# gaussian blur
-kernel = 5
-blur_gray = gaussian_blur(gray, kernel) # *gray* to *blur_gray*
+for names in image_names:
+    image_dir = 'test_images\\' + names
+    type(image_dir)
+    print(image_dir)
+    # import image
+    image = mpimg.imread(image_dir)
+    plt.imshow(image)
+    # gray scale
+    gray = grayscale(image) # *image* to *gray*
+    plt.imshow(gray,cmap='gray')
 
-plt.imshow(blur_gray)
+    # gaussian blur
+    kernel = 5
+    blur_gray = gaussian_blur(gray, kernel) # *gray* to *blur_gray*
+    plt.imshow(blur_gray)
 
-# canny edge detection
-low_t = 50
-high_t = 150
-edges = canny(blur_gray, low_t, high_t) # *blur_gray* to *edges*
+    # canny edge detection
+    low_t = 50
+    high_t = 150
+    edges = canny(blur_gray, low_t, high_t) # *blur_gray* to *edges*
 
-plt.imshow(edges)
-# mpimg.imsave('ediges.jpg',edges)
-# region of interest, don't need mask.
-imshape = image.shape
-y = imshape[0]
-print(2*y/3)
-x = imshape[1]
-vertices = np.array([[(0,y),(450, 330), (550, 330), (x,y)]], dtype=np.int32)
-region = region_of_interest(edges,vertices) # *edge* to *region*
-# mpimg.imsave('region.jpg',region)
+    # region of interest, don't need mask.
+    imshape = image.shape
+    y = imshape[0]
+    x = imshape[1]
+    vertices = np.array([[(0,y),(450, 330), (550, 330), (x,y)]], dtype=np.int32)
+    region = region_of_interest(edges,vertices) # *edge* to *region*
 
-# hough transform
-rho = 2 # distance resolution in pixels of the Hough grid
-theta = np.pi/180 # angular resolution in radians of the Hough grid
-threshold = 15     # minimum number of votes (intersections in Hough grid cell)
-min_line_len = 40 # minimum number of pixels making up a line
-max_line_gap = 20 # maximum gap in pixels between connectable line segments
+    # hough transform
+    rho = 2 # distance resolution in pixels of the Hough grid
+    theta = np.pi/180 # angular resolution in radians of the Hough grid
+    threshold = 15     # minimum number of votes (intersections in Hough grid cell)
+    min_line_len = 40 # minimum number of pixels making up a line
+    max_line_gap = 20 # maximum gap in pixels between connectable line segments
 
-line_image = hough_lines(region, rho, theta, threshold, min_line_len, max_line_gap)
+    line_image = hough_lines(region, rho, theta, threshold, min_line_len, max_line_gap)
 
-weigh_img = weighted_img(line_image, image1, 0.8, 1)
-mpimg.imsave('test_images_output\solidWhiteCurve.png',weigh_img)
+    weigh_img = weighted_img(line_image, image, 0.8, 1)
+    image_out_dir = 'test_images_output\\' + '1' + names
+    mpimg.imsave(image_out_dir,weigh_img)

@@ -99,36 +99,43 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import numpy as np
 import cv2
+import os
 
-# import image
-image = mpimg.imread('test_images/solidWhiteCurve.jpg')
+image_names = os.listdir("test_images/")
 
-# gray scale
-gray = grayscale(image) # *image* to *gray*
+for names in image_names:
+    image_dir = 'test_images\\' + names
+    # import image
+    image = mpimg.imread(image_dir)
 
-# gaussian blur
-kernel = 5
-blur_gray = gaussian_blur(gray, kernel) # *gray* to *blur_gray*
+    # gray scale
+    gray = grayscale(image) # *image* to *gray*
 
-# canny edge detection
-low_t = 50
-high_t = 150
-edges = canny(blur_gray, low_t, high_t) # *blur_gray* to *edges*
+    # gaussian blur
+    kernel = 5
+    blur_gray = gaussian_blur(gray, kernel) # *gray* to *blur_gray*
 
-# region of interest, don't need mask.
-imshape = image.shape
-y = imshape[0]
-x = imshape[1]
-vertices = np.array([[(0,y),(450, 300), (500, 300), (x,y)]], dtype=np.int32)
-region = region_of_interest(edges,vertices) # *edge* to *region*
+    # canny edge detection
+    low_t = 50
+    high_t = 150
+    edges = canny(blur_gray, low_t, high_t) # *blur_gray* to *edges*
 
-# hough transform
-rho = 2 # distance resolution in pixels of the Hough grid
-theta = np.pi/180 # angular resolution in radians of the Hough grid
-threshold = 15     # minimum number of votes (intersections in Hough grid cell)
-min_line_len = 40 #minimum number of pixels making up a line
-max_line_gap = 20    # maximum gap in pixels between connectable line segments
+    # region of interest, don't need mask.
+    imshape = image.shape
+    y = imshape[0]
+    x = imshape[1]
+    vertices = np.array([[(0,y),(450, 330), (550, 330), (x,y)]], dtype=np.int32)
+    region = region_of_interest(edges,vertices) # *edge* to *region*
 
-line_image = hough_lines(region, rho, theta, threshold, min_line_len, max_line_gap)
+    # hough transform
+    rho = 2 # distance resolution in pixels of the Hough grid
+    theta = np.pi/180 # angular resolution in radians of the Hough grid
+    threshold = 15     # minimum number of votes (intersections in Hough grid cell)
+    min_line_len = 40 # minimum number of pixels making up a line
+    max_line_gap = 20 # maximum gap in pixels between connectable line segments
 
-plt.imshow(line_image)
+    line_image = hough_lines(region, rho, theta, threshold, min_line_len, max_line_gap)
+
+    weigh_img = weighted_img(line_image, image, 0.8, 1)
+    image_out_dir = 'test_images_output\\' + names
+    mpimg.imsave(image_out_dir,weigh_img)
