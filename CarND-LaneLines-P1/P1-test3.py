@@ -26,7 +26,7 @@ def region_of_interest(img, vertices):
     formed from `vertices`. The rest of the image is set to black.
     """
     #defining a blank mask to start with
-    mask = np.zeros_like(img) # maybe the *img* is the *edge* of canny
+    mask = np.zeros_like(img)
 
     #defining a 3 channel or 1 channel color to fill the mask with depending on the input image
     if len(img.shape) > 2:
@@ -44,10 +44,57 @@ def region_of_interest(img, vertices):
 
 
 def draw_lines(img, lines, color=[255, 0, 0], thickness=2):
+    """
+    NOTE: this is the function you might want to use as a starting point once you want to
+    average/extrapolate the line segments you detect to map out the full
+    extent of the lane (going from the result shown in raw-lines-example.mp4
+    to that shown in P1_example.mp4).
+
+    Think about things like separating line segments by their
+    slope ((y2-y1)/(x2-x1)) to decide which segments are part of the left
+    line vs. the right line.  Then, you can average the position of each of
+    the lines and extrapolate to the top and bottom of the lane.
+
+    This function draws `lines` with `color` and `thickness`.
+    Lines are drawn on the image inplace (mutates the image).
+    If you want to make the lines semi-transparent, think about combining
+    this function with the weighted_img() function below
+    """
+    left_x = np.array([])
+    left_y = np.array([])
+    right_x = np.array([])
+    right_y = np.array([])
+    left_start = 0
+    left_end = 0
+    right_start = 0
+    right_end = 0
+    slope = 0
 
     for line in lines:
+        # slope = 0
         for x1,y1,x2,y2 in line:
-            cv2.line(img, (x1, y1), (x2, y2), color, thickness)
+            slope = (y2-y1) / (x2-x1)
+            if (slope > 0):
+                left_x = np.append(left_x,[x1,x2])
+                left_y = np.append(left_y,[y1,y2])
+            elif (slope < 0):
+                right_x = np.append(right_x,[x1,x2])
+                right_y = np.append(right_y,[y1,y2])
+    left_line = np.polyfit(left_x,left_y,1)
+    right_line = np.polyfit(right_x,right_y,1)
+
+    left_y_start = img.shape[0]
+    left_x_start = (left_y_start - left_line[1]) / left_line[0]
+    left_y_end = 330
+    left_x_end = (left_y_end - left_line[1]) / left_line[0]
+
+    right_y_start = img.shape[0]
+    right_x_start = (right_y_start - right_line[1]) / right_line[0]
+    right_y_end = 330
+    right_x_end = (right_y_end - right_line[1]) / right_line[0]
+
+    cv2.line(img, (int(left_x_start), int(left_y_start)), (int(left_x_end), int(left_y_end)), color, thickness)
+    cv2.line(img, (int(right_x_start), int(right_y_start)), (int(right_x_end), int(right_y_end)), color, thickness)
 
 def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap):
     """
