@@ -130,7 +130,7 @@ print(2*y/3)
 x = imshape[1]
 vertices = np.array([[(0,y),(450, 330), (550, 330), (x,y)]], dtype=np.int32)
 region = region_of_interest(edges,vertices) # *edge* to *region*
-mpimg.imsave('region.jpg',region)
+# mpimg.imsave('region.jpg',region)
 
 # hough transform
 rho = 2 # distance resolution in pixels of the Hough grid
@@ -141,5 +141,6 @@ max_line_gap = 20 # maximum gap in pixels between connectable line segments
 
 line_image = hough_lines(region, rho, theta, threshold, min_line_len, max_line_gap)
 
-draw_lines(image, line_image)
-plt.imshow(image)
+weigh_img = weighted_img(line_image, image, 0.8, 1)
+plt.imshow(weigh_img)
+# mpimg.imsave('weighed_image.jpg',weigh_img)
