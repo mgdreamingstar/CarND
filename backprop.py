@@ -12,14 +12,14 @@ def sigmoid(x):
 
 # Hyperparameters
 n_hidden = 2  # number of hidden units
-epochs = 900
-learnrate = 0.005
+epochs = 90
+learnrate = 0.0001
 
-# 400,3
+# 360,6
 n_records, n_features = features.shape
 last_loss = None
 # Initialize weights
-# 3:2
+# 6:2
 weights_input_hidden = np.random.normal(scale=1 / n_features ** .5,
                                         size=(n_features, n_hidden))
 # 1:2
@@ -27,41 +27,43 @@ weights_hidden_output = np.random.normal(scale=1 / n_features ** .5,
                                          size=n_hidden)
 
 for e in range(epochs):
-    # 3:2
+    # 6:2
     del_w_input_hidden = np.zeros(weights_input_hidden.shape)
     # 1:2
     del_w_hidden_output = np.zeros(weights_hidden_output.shape)
-    for x, y in zip(features.values, targets): # 400:3 400:1
+    for x, y in zip(features.values, targets): # 1:6 1
         ## Forward pass ##
         # TODO: Calculate the output
-        # 400:2
-        hidden_input = np.dot(x, weights_input_hidden)
-        hidden_output = sigmoid(hidden_input)
-        output = sigmoid(np.dot(hidden_output,weights_hidden_output[:,None])
+        # 1:6 6:2
+        hidden_input = np.dot(x, weights_input_hidden) # 1:2
+        hidden_output = sigmoid(hidden_input) # 1:2
+        output = sigmoid(np.dot(hidden_output,weights_hidden_output[:,None]))
 
         ## Backward pass ##
         # TODO: Calculate the error
-        # 400:1
+        # 1
         error = y - output
 
         # TODO: Calculate error gradient in output unit
-        # 400:1
+        # 1
         output_error = error * output * (1 - output)
 
         # TODO: propagate errors to hidden layer
         # weights_hidden_output * del_err_output * hidden_layer_output * (1-hidden_layer_output)
-        # 1:2 400:1 400:2 = 400:1
+        # 1:2 | 1 | 1:2 = 1:2
         hidden_error = weights_hidden_output * output_error * hidden_output * (1-hidden_output)
 
         # TODO: Update the change in weights
-        # 400:1 , 400:2 = 1:2
-        del_w_hidden_output += np.dot(output_error.T, hidden_output)
-        # 400:1 , 400:3 = 1:3
-        del_w_input_hidden += np.dot(hidden_error.T, x)
+        # 1 | 2:1
+        del_w_hidden_output += sum(output_error * hidden_output[:,None])
+        # 2:1 | 6:1
+        del_w_input_hidden += hidden_error * x[:,None]
 
     # TODO: Update weights
-    weights_input_hidden += learnrate * x * del_w_input_hidden.T
-    weights_hidden_output += learnrate * hidden_output * del_w_hidden_output.T
+    # 1 | 6:2 | (6,)
+    weights_input_hidden += (learnrate * del_w_input_hidden.T * x).T
+    # 1 | 2:1 | 2:1
+    weights_hidden_output += learnrate * hidden_output * del_w_hidden_output
 
     # Printing out the mean square error on the training set
     if e % (epochs / 10) == 0:
