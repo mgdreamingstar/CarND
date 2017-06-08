@@ -12,7 +12,7 @@ def sigmoid(x):
 
 # Hyperparameters
 n_hidden = 2  # number of hidden units
-epochs = 90
+epochs = 190
 learnrate = 0.0001
 
 # 360,6
@@ -34,7 +34,7 @@ for e in range(epochs):
     for x, y in zip(features.values, targets): # 1:6 1
         ## Forward pass ##
         # TODO: Calculate the output
-        # 1:6 6:2
+        # (6,) 6:2
         hidden_input = np.dot(x, weights_input_hidden) # 1:2
         hidden_output = sigmoid(hidden_input) # 1:2
         output = sigmoid(np.dot(hidden_output,weights_hidden_output[:,None]))
