@@ -149,13 +149,16 @@ class Sigmoid(Node):
         # on each output, so the gradients are summed over all outputs.
         for n in self.outbound_nodes:
             # Get the partial of the cost with respect to this node.
-            grad_cost = n.gradients[self] # 'self' means this node !! Without the 'y' input node.
+            grad_cost = n.gradients[self]
             """
-            TODO: Your code goes here!
-
-            Set the gradients property to the gradients with respect to each input.
-
-            NOTE: See the Linear node and MSE node for examples.
+            'self' means this node !! Without the 'y' input node.
+            So there is only 1 output bound node and 1 input bound node.
+            inbound node is f (Linear).
+            outbound node is cose (MSE).
+            MSE has 2 inbound { y(input) and a(sigmoid) }.
+            grad_cost points to 'self' = a(sigmoid)
+            **So**, the 'grax' is self/input.
+            Self.gradients w.r.t the only 'inbound node' = cost/self * self/input
             """
             x = self.inbound_nodes[0].value
             grax = self._sigmoid(x) * (1 - self._sigmoid(x))
