@@ -149,7 +149,7 @@ class Sigmoid(Node):
         # on each output, so the gradients are summed over all outputs.
         for n in self.outbound_nodes:
             # Get the partial of the cost with respect to this node.
-            grad_cost = n.gradients[self]
+            grad_cost = n.gradients[self] # 'self' means this node !! Without the 'y' input node.
             """
             TODO: Your code goes here!
 
@@ -157,8 +157,9 @@ class Sigmoid(Node):
 
             NOTE: See the Linear node and MSE node for examples.
             """
-            valuea = n.inbound_nodes[0].value
-            self.gradients[n] = valuea * (1 - valuea) * grad_cost
+            x = self.inbound_nodes[0].value
+            grax = self._sigmoid(x) * (1 - self._sigmoid(x))
+            self.gradients[self.inbound_nodes[0]] += grad_cost * grax
 
 
 class MSE(Node):
