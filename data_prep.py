@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-admissions = pd.read_csv('binary.csv')
+admissions = pd.read_csv(r'd:\Github\CarND\binary.csv')
 
 # Make dummy variables for rank
 data = pd.concat([admissions, pd.get_dummies(admissions['rank'], prefix='rank')], axis=1)
@@ -20,3 +20,6 @@ data, test_data = data.ix[sample], data.drop(sample)
 # Split into features and targets
 features, targets = data.drop('admit', axis=1), data['admit']
 features_test, targets_test = test_data.drop('admit', axis=1), test_data['admit']
+
+print(features.values.shape)
+print(targets.shape)
